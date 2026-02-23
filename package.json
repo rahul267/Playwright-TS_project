@@ -2,6 +2,7 @@
   "name": "chubb-test-automation-framework",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "TypeScript test automation framework skeleton",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,6 +10,9 @@
     "build": "tsc -p tsconfig.json",
     "clean": "powershell -NoProfile -Command \"if (Test-Path dist) { Remove-Item -Recurse -Force dist }\"",
     "check": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "validate": "npm run check && npm run lint",
     "test": "npx playwright test",
     "test:local": "cross-env NODE_ENV=local npm run test",
     "test:dev": "cross-env NODE_ENV=dev npm run test",
@@ -16,13 +20,28 @@
     "test:api:qa": "cross-env NODE_ENV=qa npx playwright test ./src/api",
     "test:qa:api:regression": "cross-env NODE_ENV=qa npx playwright test ./src/api --grep @regression",
     "test:showcase": "cross-env NODE_ENV=qa npx playwright test ./src/showcase",
-    "pw:list": "cross-env NODE_ENV=qa npx playwright test --list"
+    "pw:list": "cross-env NODE_ENV=qa npx playwright test --list",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "@types/node": "^22.15.29",
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.54.2",
+    "@types/node": "^22.15.29",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
     "cross-env": "^7.0.3",
     "dotenv": "^16.6.1",
-    "typescript": "^5.8.2"
+    "eslint": "^10.0.1",
+    "globals": "^17.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "tsc-files": "^1.1.4",
+    "typescript": "^5.9.3"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "tsc-files --noEmit"
+    ]
   }
 }
