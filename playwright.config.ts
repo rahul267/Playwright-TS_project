@@ -27,7 +27,11 @@ export default defineConfig({
   timeout: 30_000,
   fullyParallel: true,
   retries: 1,
-  reporter: [["list"], ["html", { outputFolder: "playwright-report", open: "never" }]],
+  reporter: [
+    ["list"],
+    ["html", { outputFolder: "playwright-report", open: "never" }],
+    ["allure-playwright", { outputFolder: "allure-results" }]
+  ],
   globalSetup: "./src/globals/global-setup.ts",
   globalTeardown: "./src/globals/global-teardown.ts",
   use: {

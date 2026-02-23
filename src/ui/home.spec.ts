@@ -6,6 +6,7 @@ test.describe("UI smoke", () => {
     const homePage = new HomePage(page);
 
     await homePage.open();
+    await homePage.expectOnHomePage();
     await homePage.expectHeadingVisible();
   });
 });

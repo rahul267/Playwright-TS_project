@@ -88,6 +88,32 @@ npm run test:showcase
 npm run pw:list
 ```
 
+## Allure Report
+
+1. Run tests to produce `allure-results`:
+
+```powershell
+npm run test:qa
+```
+
+2. Generate the HTML report:
+
+```powershell
+npm run allure:generate
+```
+
+3. Open the generated report:
+
+```powershell
+npm run allure:open
+```
+
+Optional (generate + open in one command):
+
+```powershell
+npm run allure:serve
+```
+
 ## Showcase Tests
 
 Feature-focused examples are in:

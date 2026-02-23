@@ -21,6 +21,9 @@
     "test:qa:api:regression": "cross-env NODE_ENV=qa npx playwright test ./src/api --grep @regression",
     "test:showcase": "cross-env NODE_ENV=qa npx playwright test ./src/showcase",
     "pw:list": "cross-env NODE_ENV=qa npx playwright test --list",
+    "allure:generate": "allure generate allure-results --clean -o allure-report",
+    "allure:open": "allure open allure-report",
+    "allure:serve": "allure serve allure-results",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -29,6 +32,8 @@
     "@types/node": "^22.15.29",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.56.0",
+    "allure-commandline": "^2.36.0",
+    "allure-playwright": "^3.4.5",
     "cross-env": "^7.0.3",
     "dotenv": "^16.6.1",
     "eslint": "^10.0.1",

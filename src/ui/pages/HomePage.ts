@@ -1,8 +1,8 @@
-import { expect, type Locator, type Page } from "@playwright/test";
+import { type Locator, type Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 export class HomePage extends BasePage {
-  readonly heading: Locator;
+  private readonly heading: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -11,9 +11,14 @@ export class HomePage extends BasePage {
 
   async open(): Promise<void> {
     await this.navigate("/");
+    await this.waitForPageLoaded();
+  }
+
+  async expectOnHomePage(): Promise<void> {
+    await this.expectUrlContains("/");
   }
 
   async expectHeadingVisible(): Promise<void> {
-    await expect(this.heading).toBeVisible();
+    await this.expectVisible(this.heading);
   }
 }
