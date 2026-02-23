@@ -1,0 +1,28 @@
+{
+  "name": "chubb-test-automation-framework",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TypeScript test automation framework skeleton",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "powershell -NoProfile -Command \"if (Test-Path dist) { Remove-Item -Recurse -Force dist }\"",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "npx playwright test",
+    "test:local": "cross-env NODE_ENV=local npm run test",
+    "test:dev": "cross-env NODE_ENV=dev npm run test",
+    "test:qa": "cross-env NODE_ENV=qa npm run test",
+    "test:api:qa": "cross-env NODE_ENV=qa npx playwright test ./src/api",
+    "test:qa:api:regression": "cross-env NODE_ENV=qa npx playwright test ./src/api --grep @regression",
+    "test:showcase": "cross-env NODE_ENV=qa npx playwright test ./src/showcase",
+    "pw:list": "cross-env NODE_ENV=qa npx playwright test --list"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "@playwright/test": "^1.54.2",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.6.1",
+    "typescript": "^5.8.2"
+  }
+}

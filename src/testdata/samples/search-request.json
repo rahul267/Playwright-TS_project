@@ -1,0 +1,5 @@
+{
+  "clientId": "sample-client-001",
+  "searchType": "claim",
+  "limit": 25
+}

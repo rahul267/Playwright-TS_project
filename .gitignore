@@ -1,0 +1,8 @@
+node_modules/
+dist/
+playwright-report/
+test-results/
+.DS_Store
+
+# If real secrets are used, keep local secure files out of source control.
+environments/*.secret.env
