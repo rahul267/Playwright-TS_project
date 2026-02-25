@@ -29,7 +29,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.54.2",
-    "@types/node": "^22.15.29",
+    "@types/node": "^22.19.11",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.56.0",
     "allure-commandline": "^2.36.0",
