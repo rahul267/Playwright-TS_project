@@ -48,5 +48,8 @@
       "eslint --fix",
       "tsc-files --noEmit"
     ]
+  },
+  "dependencies": {
+    "ajv": "^8.18.0"
   }
 }

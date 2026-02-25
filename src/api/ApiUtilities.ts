@@ -4,7 +4,7 @@ export interface ApiRequest {
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   url: string;
   headers?: Record<string, string>;
-  body?: unknown;
+  data?: unknown;
   timeoutMs?: number;
 }
 
@@ -15,6 +15,7 @@ export interface ApiResponse<T = unknown> {
 }
 
 export class ApiUtilities {
+
   constructor(private readonly logger: Logger) {}
 
   async send<T = unknown>(request: ApiRequest): Promise<ApiResponse<T>> {
@@ -26,4 +27,5 @@ export class ApiUtilities {
       body: {} as T
     };
   }
+
 }
