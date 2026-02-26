@@ -1,10 +1,18 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import fs from 'fs-extra';
+import _ from 'lodash';
+import { ZodSchema } from 'zod';
+import Ajv, { Schema } from 'ajv';
+import jp from 'jsonpath';
+import deepmerge from 'deepmerge';
 import { FrameworkException } from "../../exceptions/Exceptions";
+
+const ajv = new Ajv(); // Initialized outside the class once for performance
 
 export class JsonUtility {
   
-  // --- Existing Core Methods ---
+  // ==========================================
+  // --- EXISTING CORE METHODS ---
+  // ==========================================
 
   parse<T>(text: string): T {
     try {
@@ -22,19 +30,16 @@ export class JsonUtility {
     }
   }
 
-  // --- New File I/O & CRUD Methods ---
+  // ==========================================
+  // --- EXISTING FILE I/O & CRUD METHODS ---
+  // ==========================================
 
   /**
    * READ: Reads a JSON file from the disk and parses it into the specified type <T>.
    */
   readJsonFromFile<T>(filePath: string): T {
     try {
-      const absolutePath = path.resolve(filePath);
-      if (!fs.existsSync(absolutePath)) {
-        throw new Error(`File not found at: ${absolutePath}`);
-      }
-      const rawData = fs.readFileSync(absolutePath, 'utf-8');
-      return this.parse<T>(rawData); // Reusing your parse method
+      return fs.readJsonSync(filePath) as T;
     } catch (error) {
       throw new FrameworkException(`Error reading JSON file at ${filePath}`, error);
     }
@@ -45,15 +50,8 @@ export class JsonUtility {
    */
   writeJsonToFile(filePath: string, data: unknown, pretty = true): void {
     try {
-      const absolutePath = path.resolve(filePath);
-      const dir = path.dirname(absolutePath);
-      
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      
-      const jsonString = this.stringify(data, pretty); // Reusing your stringify method
-      fs.writeFileSync(absolutePath, jsonString, 'utf-8');
+      const options = pretty ? { spaces: 2 } : {};
+      fs.outputJsonSync(filePath, data, options);
     } catch (error) {
       throw new FrameworkException(`Error writing JSON file to ${filePath}`, error);
     }
@@ -65,25 +63,8 @@ export class JsonUtility {
    */
   updateValueInFile(filePath: string, nodePath: string, newValue: unknown): void {
     try {
-      // Read the existing file
-      const data = this.readJsonFromFile<Record<string, any>>(filePath);
-      const keys = nodePath.split('.');
-      let current = data;
-
-      // Traverse the JSON tree
-      for (let i = 0; i < keys.length - 1; i++) {
-        const key = keys[i];
-        // If the node doesn't exist or isn't an object, create it
-        if (!(key in current) || typeof current[key] !== 'object' || current[key] === null) {
-          current[key] = {}; 
-        }
-        current = current[key];
-      }
-
-      // Set the new value at the final key
-      current[keys[keys.length - 1]] = newValue;
-      
-      // Write the updated object back to the file
+      const data = this.readJsonFromFile<any>(filePath);
+      _.set(data, nodePath, newValue);
       this.writeJsonToFile(filePath, data);
     } catch (error) {
       throw new FrameworkException(`Failed to update JSON value at path '${nodePath}' in ${filePath}`, error);
@@ -95,27 +76,100 @@ export class JsonUtility {
    */
   deleteValueFromFile(filePath: string, nodePath: string): void {
     try {
-      const data = this.readJsonFromFile<Record<string, any>>(filePath);
-      const keys = nodePath.split('.');
-      let current = data;
-
-      // Traverse to find the parent of the node to delete
-      for (let i = 0; i < keys.length - 1; i++) {
-        const key = keys[i];
-        if (!(key in current) || typeof current[key] !== 'object' || current[key] === null) {
-          return; // Path doesn't exist, exit gracefully
-        }
-        current = current[key];
-      }
-
-      // Delete the final key
-      const finalKey = keys[keys.length - 1];
-      if (current && finalKey in current) {
-        delete current[finalKey];
-        this.writeJsonToFile(filePath, data);
-      }
+      const data = this.readJsonFromFile<any>(filePath);
+      _.unset(data, nodePath);
+      this.writeJsonToFile(filePath, data);
     } catch (error) {
       throw new FrameworkException(`Failed to delete JSON value at path '${nodePath}' in ${filePath}`, error);
+    }
+  }
+
+  // ==========================================
+  // --- NEW: SCHEMA VALIDATION METHODS ---
+  // ==========================================
+
+  /**
+   * Validates a JSON object using Zod.
+   * Returns strongly-typed parsed data if successful.
+   */
+  validateWithZod<T>(data: unknown, schema: ZodSchema<T>): T {
+    try {
+      return schema.parse(data);
+    } catch (error) {
+      throw new FrameworkException("Zod Schema Validation Failed", error);
+    }
+  }
+
+  /**
+   * Validates a JSON object using Ajv.
+   * Returns true if valid, throws FrameworkException with missing fields/types if invalid.
+   */
+  validateWithAjv(data: any, schema: Schema): boolean {
+    try {
+      const validate = ajv.compile(schema);
+      const isValid = validate(data);
+      if (!isValid) {
+        throw new Error(ajv.errorsText(validate.errors));
+      }
+      return isValid;
+    } catch (error) {
+      throw new FrameworkException("Ajv Schema Validation Failed", error);
+    }
+  }
+
+  // ==========================================
+  // --- NEW: DATA EXTRACTION METHODS ---
+  // ==========================================
+
+  /**
+   * Safely extracts a value from a nested JSON object using Lodash.
+   * Returns the defaultValue if the path is not found or is undefined.
+   */
+  extractWithLodash(data: any, path: string, defaultValue?: any): any {
+    try {
+      return _.get(data, path, defaultValue);
+    } catch (error) {
+      throw new FrameworkException(`Failed to extract data at path '${path}' using Lodash`, error);
+    }
+  }
+
+  /**
+   * Queries a complex JSON object using JSONPath syntax.
+   * Returns an array of matches.
+   */
+  extractWithJsonPath(data: any, jsonPathQuery: string): any[] {
+    try {
+      return jp.query(data, jsonPathQuery);
+    } catch (error) {
+      throw new FrameworkException(`Failed to extract data using JSONPath query '${jsonPathQuery}'`, error);
+    }
+  }
+
+  // ==========================================
+  // --- NEW: DATA MERGING METHODS ---
+  // ==========================================
+
+  /**
+   * Deep merges two JSON objects using deepmerge.
+   * Ideal for combining default test data with specific overrides without mutating originals.
+   */
+  mergeWithDeepmerge<T>(baseData: Partial<T>, overrideData: Partial<T>): T {
+    try {
+      return deepmerge(baseData, overrideData) as T;
+    } catch (error) {
+      throw new FrameworkException("Failed to merge JSON objects using deepmerge", error);
+    }
+  }
+
+  /**
+   * Deep merges two JSON objects using Lodash.
+   * Creates a new object to prevent mutating the original targetData.
+   */
+  mergeWithLodash(targetData: any, sourceData: any): any {
+    try {
+      return _.merge({}, targetData, sourceData); 
+    } catch (error) {
+      throw new FrameworkException("Failed to merge JSON objects using Lodash", error);
     }
   }
 }

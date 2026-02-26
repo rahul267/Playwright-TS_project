@@ -86,6 +86,7 @@ npm run test:api:qa
 npm run test:qa:api:regression
 npm run test:showcase
 npm run pw:list
+npx playwright test src/core/utilities/JsonUtility.spec.ts
 ```
 
 ## Allure Report
