@@ -48,5 +48,8 @@
       "eslint --fix",
       "tsc-files --noEmit"
     ]
+  },
+  "dependencies": {
+    "jose": "^6.1.3"
   }
 }
