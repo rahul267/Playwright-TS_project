@@ -1,0 +1,53 @@
+{
+  "countries": [
+    {
+      "name": "USA",
+      "lobs": [
+        {
+          "name": "Retail",
+          "products": [
+            {
+              "id": "P-1001",
+              "name": "PolicyPro"
+            },
+            {
+              "id": "P-1002",
+              "name": "ClaimTrack"
+            }
+          ]
+        },
+        {
+          "name": "Commercial",
+          "products": [
+            {
+              "id": "P-2001",
+              "name": "BizShield"
+            },
+            {
+              "id": "P-2002",
+              "name": "RiskGuard"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "India",
+      "lobs": [
+        {
+          "name": "SMB",
+          "products": [
+            {
+              "id": "P-3001",
+              "name": "QuickCover"
+            },
+            {
+              "id": "P-3002",
+              "name": "ClaimEase"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
