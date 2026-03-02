@@ -51,6 +51,7 @@ export class ApiUtilities {
         grant_type: "client_credentials",
         client_id: this.config.clientId,
         client_secret: this.config.clientSecret,
+        audience: "https://your-api-identifier",
       }),
     });
 
